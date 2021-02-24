@@ -190,6 +190,12 @@ ZResult ZCommand::doResetCommand()
   serial.setFlowControlType(DEFAULT_FCT);
   setOptionsFromSavedConfig(argv);
   memset(nbuf,0,MAX_COMMAND_SIZE);
+  if (ringCounter > 0 && servs != null)
+      digitalWrite (pinAA,LOW);
+      else digitalWrite (pinAA,HIGH);
+  if (baudRate > hsbaud)
+      digitalWrite (pinHS,LOW);
+      else digitalWrite (pinHS,HIGH);
   return ZOK;
 }
 
@@ -765,6 +771,9 @@ ZResult ZCommand::doBaudCommand(int vval, uint8_t *vbuf, int vlen)
   }
   hwSerialFlush();
   changeBaudRate(baudRate);
+  if (baudRate > hsbaud)
+      digitalWrite (pinHS,LOW);
+      else digitalWrite (pinHS,HIGH);
   changeSerialConfig(serialConfig);
   return ZOK;
 }
@@ -2060,6 +2069,9 @@ ZResult ZCommand::doSerialCommand()
                   result=ZERROR;
                 else
                   ringCounter = sval;
+                  if (ringCounter > 0 && servs != null)
+                   digitalWrite (pinAA,LOW);
+                   else digitalWrite (pinAA,HIGH);
                 break;
               case 2:
                 if((sval < 0)||(sval>255))
@@ -2729,6 +2741,12 @@ void ZCommand::sendOfficialResponse(ZResult res)
 void ZCommand::showInitMessage()
 {
   serial.prints(commandMode.EOLN);
+  if (ringCounter > 0 && servs != null)
+      digitalWrite (pinAA,LOW);
+      else digitalWrite (pinAA,HIGH);
+  if (baudRate > hsbaud)
+      digitalWrite (pinHS,LOW);
+      else digitalWrite (pinHS,HIGH);
 #ifdef ZIMODEM_ESP32
   int totalSPIFFSSize = SPIFFS.totalBytes();
 #ifdef INCLUDE_SD_SHELL
@@ -3361,4 +3379,3 @@ void ZCommand::loop()
   }
   checkBaudChange();
 }
-

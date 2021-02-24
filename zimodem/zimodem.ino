@@ -14,7 +14,7 @@
    limitations under the License.
 */
 //#define TCP_SND_BUF                     4 * TCP_MSS
-#define ZIMODEM_VERSION "3.5.6.1"
+#define ZIMODEM_VERSION "3.5.6.1-With LED Support"
 const char compile_date[] = __DATE__ " " __TIME__;
 #define DEFAULT_NO_DELAY true
 #define null 0
@@ -75,6 +75,10 @@ const char compile_date[] = __DATE__ " " __TIME__;
 # define DEFAULT_PIN_CTS 5 // is 0 for ESP-01, see getDefaultCtsPin() below.
 # define DEFAULT_PIN_DCD 2
 # define DEFAULT_FCT FCT_RTSCTS
+# define DEFAULT_PIN_AA 16     // GPIO Pin to use as the Auto Answer Indicator
+# define DEFAULT_PIN_HS 15     // GPIO Pin to use as the High Speed Indicator
+# define DEFAULT_PIN_WIFI 0    // GPIO Pin to use as the Wifi Connected Indicator
+# define DEFAULT_HS_BAUD 38400  // Baud rate and above to activate the HighSpeed LED
 //# define RS232_INVERTED 1
 # define debugPrintf doNothing
 # define preEOLN(...)
@@ -199,7 +203,10 @@ static int dtrActive = DEFAULT_DTR_HIGH;
 static int dtrInactive = DEFAULT_DTR_LOW;
 static int dsrActive = DEFAULT_DSR_HIGH;
 static int dsrInactive = DEFAULT_DSR_LOW;
-
+static int pinAA = DEFAULT_PIN_AA;
+static int pinHS = DEFAULT_PIN_HS;
+static int pinWIFI = DEFAULT_PIN_WIFI;
+static int hsbaud = DEFAULT_HS_BAUD;
 static int getDefaultCtsPin()
 {
 #ifdef ZIMODEM_ESP32
@@ -250,6 +257,9 @@ static bool connectWifi(const char* ssid, const char* password)
   if(hostname.length() > 0)
     setHostName(hostname.c_str());
   bool amConnected = (WiFi.status() == WL_CONNECTED) && (strcmp(WiFi.localIP().toString().c_str(), "0.0.0.0")!=0);
+  if (amConnected = true)
+      digitalWrite (pinWIFI,LOW);
+      else digitalWrite (pinWIFI,HIGH);
   int WiFiCounter = 0;
   while ((!amConnected) && (WiFiCounter < 30))
   {
@@ -347,6 +357,13 @@ void setup()
 {
   for(int i=0;i<MAX_PIN_NO;i++)
     pinSupport[i]=false;
+    pinMode(pinAA,OUTPUT);
+    pinMode(pinHS,OUTPUT);
+    pinMode(pinWIFI,OUTPUT);
+    digitalWrite (pinAA,HIGH);
+    digitalWrite (pinHS,HIGH);
+    digitalWrite (pinWIFI,HIGH);
+
 #ifdef ZIMODEM_ESP32
   Serial.begin(115200); //the debug port
   Serial.setDebugOutput(true);
