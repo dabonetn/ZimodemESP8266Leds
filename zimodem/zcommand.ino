@@ -1104,10 +1104,10 @@ ZResult ZCommand::doUpdateFirmware(int vval, uint8_t *vbuf, int vlen, bool isNum
   uint8_t buf[255];
   int bufSize = 254;
 #ifdef ZIMODEM_ESP32
-  if((!doWebGetBytes("www.zimmers.net", 80, "/otherprojs/guru-latest-version.txt", false, buf, &bufSize))||(bufSize<=0))
+  if((!doWebGetBytes("www.dabone.xyz", 80, "/otherprojs/guru-latest-version.txt", false, buf, &bufSize))||(bufSize<=0))
     return ZERROR;
 #else
-  if((!doWebGetBytes("www.zimmers.net", 80, "/otherprojs/c64net-latest-version.txt", false, buf, &bufSize))||(bufSize<=0))
+  if((!doWebGetBytes("www.dabone.xyz", 80, "/otherprojs/c64net-latest-version.txt", false, buf, &bufSize))||(bufSize<=0))
     return ZERROR;
 #endif
 
@@ -1158,7 +1158,7 @@ ZResult ZCommand::doUpdateFirmware(int vval, uint8_t *vbuf, int vlen, bool isNum
   sprintf(firmwareName,"/otherprojs/c64net-firmware-%s.bin",buf);
 #endif
   uint32_t respLength=0;
-  WiFiClient *c = doWebGetStream("www.zimmers.net", 80, firmwareName, false, &respLength); 
+  WiFiClient *c = doWebGetStream("www.dabone.xyz", 80, firmwareName, false, &respLength); 
   if(c==null)
   {
     serial.prints(EOLN);
@@ -1495,6 +1495,8 @@ ZResult ZCommand::doAnswerCommand(int vval, uint8_t *vbuf, int vlen, bool isNumb
         {
           current=c;
           checkOpenConnections();
+          dcdStatus=!dcdStatus;             // Add DCD Support to the ATA Command
+          s_pinWrite(pinDCD,dcdStatus);     // 
           streamMode.switchTo(c);
           lastServerClientId=0;
           if(ringCounter == 0)
@@ -2529,7 +2531,7 @@ ZResult ZCommand::doSerialCommand()
             int oldDelay = serialDelayMs;
             serialDelayMs = vval;
             uint8_t buf[100];
-            sprintf((char *)buf,"www.zimmers.net:80/otherprojs%s",filename);
+            sprintf((char *)buf,"www.dabone.xyz:80/otherprojs%s",filename);
             serial.prints("Control-C to Abort.");
             serial.prints(EOLN);
             result = doWebStream(0,buf,strlen((char *)buf),false,filename,true);
@@ -2742,7 +2744,7 @@ void ZCommand::showInitMessage()
 #ifdef RS232_INVERTED
   serial.prints("C64Net WiFi Firmware v");
 #else
-  serial.prints("Zimodem Firmware v");
+  serial.prints("Link232-Wifi Firmware v");
 #endif
 #endif
   HWSerial.setTimeout(60000);
@@ -3129,6 +3131,26 @@ void ZCommand::sendNextPacket()
             serial.printi(nextConn->id);
             serial.prints(EOLN);
             serial.flush();
+			
+              if(serial.getFlowControlType() == FCT_RTSCTS)             // Ugly Hack to give the Link-232 Wifi 6551 chip time to show the NO CARRIER String
+                {                                                     //
+                    serial.setFlowControlType(FCT_DISABLED);          //
+                    preEOLN(EOLN);                                    //
+                    serial.prints("NO CARRIER ");                     //
+                    serial.printi(nextConn->id);                      //
+                    serial.prints(EOLN);                              //
+                    HWSerial.flush(); //Wait for String to complete.  //
+                    serial.setFlowControlType(FCT_RTSCTS);            //
+                    return;                                           //
+                    }                                                 // End of hack.
+                     else
+                            preEOLN(EOLN);
+                            serial.prints("NO CARRIER ");
+                            serial.printi(nextConn->id);
+                            serial.prints(EOLN);
+                            HWSerial.flush(); //Wait for String to complete.
+ 
+
           }
           if(serial.getFlowControlType() == FCT_MANUAL)
           {

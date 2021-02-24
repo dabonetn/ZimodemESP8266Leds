@@ -14,7 +14,7 @@
    limitations under the License.
 */
 //#define TCP_SND_BUF                     4 * TCP_MSS
-#define ZIMODEM_VERSION "3.5.6"
+#define ZIMODEM_VERSION "3.5.6.1"
 const char compile_date[] = __DATE__ " " __TIME__;
 #define DEFAULT_NO_DELAY true
 #define null 0
@@ -75,7 +75,7 @@ const char compile_date[] = __DATE__ " " __TIME__;
 # define DEFAULT_PIN_CTS 5 // is 0 for ESP-01, see getDefaultCtsPin() below.
 # define DEFAULT_PIN_DCD 2
 # define DEFAULT_FCT FCT_RTSCTS
-# define RS232_INVERTED 1
+//# define RS232_INVERTED 1
 # define debugPrintf doNothing
 # define preEOLN(...)
 # define echoEOLN(...) serial.prints(EOLN)
@@ -109,7 +109,7 @@ const char compile_date[] = __DATE__ " " __TIME__;
 # define DEFAULT_DTR_LOW  HIGH
 #endif
 
-#define DEFAULT_BAUD_RATE 1200
+#define DEFAULT_BAUD_RATE 19200
 #define DEFAULT_SERIAL_CONFIG SERIAL_8N1
 #define MAX_PIN_NO 50
 #define INTERNAL_FLOW_CONTROL_DIV 380
