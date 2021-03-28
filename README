@@ -4,7 +4,7 @@ Current version is 3.5.6
 I started this project as a way to convert a old external modem into a wifi modem using zimodem, but I also wanted the leds on the modem to work.
 
 This is using a small pcb with a wemos d1 mini esp8266 module, a 74244 (ls, hct, etc, shouldn't matter),along with a full rs232 to ttl adapter.
-I'm using one labeled aibans breakout, sold by MDFLY off amazon.
+I'm using a MDFLY MOL-CV0025 from amazon.
 
 Also needed are one .1uf cap, and eight resistors.
 
